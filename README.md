@@ -85,19 +85,3 @@ To move the station, select the cell and the two belts and drag them together, o
 ```
 
 Keep the 30 unit offset between the cell and the belts if you place it somewhere else.
-
-## Notes
-
-The cell is not connected to the sorter lanes by conveyor. Both belts stop about 20 units short of
-the nearest lane, so add a curved or 6 m conveyor if you want parts to move between the cell and the
-line without picking them up by hand.
-
-The addresses in `plc/machining_center_tags.csv` are the ones Factory I/O gives in this scene, based
-on tag order. Run your own File > Export > Siemens and check them, because the export renumbers when
-objects are added or removed. The tag names stay the same, so only the addresses need remapping.
-
-There is no HMI, no alarms, no trends and no recipes. Sorting, assembly and storage logic from the
-base scene is unchanged.
-
-The scene has 141 objects and 164 tags, with no duplicate tag names. It is a plain Factory I/O scene
-file, nothing is generated or patched when it loads.
