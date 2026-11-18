@@ -1,0 +1,88 @@
+FUNCTION_BLOCK "FB_MachiningCell"
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT
+      xEnable : Bool;          // line running, from OB1 (M0.0)
+      xLineFault : Bool;       // line fault, from OB1 (M0.1)
+      xStart : Bool;           // start request
+      xStop : Bool;            // stop request
+      xReset : Bool;           // reset request (fault acknowledgement)
+      xProduceLids : Bool;     // TRUE = lids, FALSE = bases
+      xIsBusy : Bool;          // from "Machining Center 1 (Is Busy)"
+      xHasError : Bool;        // from "Machining Center 1 (Has Error)"
+      xDoorOpened : Bool;      // from "Machining Center 1 (Opened)"
+      iProgress : Int;         // from "Machining Center 1 (Progress)"
+   END_VAR
+   VAR_OUTPUT
+      xCmdStart : Bool;        // to "Machining Center 1 (Start)"
+      xCmdStop : Bool;         // to "Machining Center 1 (Stop)"
+      xCmdReset : Bool;        // to "Machining Center 1 (Reset)"
+      xCmdProduce : Bool;      // to "Machining Center 1 (Produce Lids)"
+      xInfeedBelt : Bool;      // to "CNC Infeed Conveyor"
+      xOutfeedBelt : Bool;     // to "CNC Outfeed Conveyor"
+      xReady : Bool;           // station free and healthy
+      iParts : Int;            // finished parts since last download
+   END_VAR
+   VAR
+      xRun : Bool;             // run latch
+      xFault : Bool;           // fault latch
+      xBusyOld : Bool;         // busy edge memory
+      xResetOld : Bool;        // reset edge memory
+      xResetEdge : Bool;       // reset one-shot
+      xCycleDone : Bool;       // part finished this scan
+   END_VAR
+BEGIN
+	// ================================================================
+	// Robot + CNC cell (Factory I/O "Machining Center" station)
+	// Equivalent LAD: see 01_LAD_Networks.md
+	// ================================================================
+
+	// ---- NW1: reset edge clears the fault latch --------------------
+	#xResetEdge := #xReset AND NOT #xResetOld;
+	#xResetOld := #xReset;
+	IF #xResetEdge THEN
+	    #xFault := FALSE;
+	END_IF;
+
+	// ---- NW2: fault latch (dominant) ------------------------------
+	// A wrong item on the entry bay must stop the station until Reset.
+	IF #xHasError THEN
+	    #xFault := TRUE;
+	END_IF;
+
+	// ---- NW3: run latch -------------------------------------------
+	IF #xFault OR #xLineFault OR NOT #xEnable THEN
+	    #xRun := FALSE;
+	ELSIF #xStart THEN
+	    #xRun := TRUE;
+	ELSIF #xStop THEN
+	    #xRun := FALSE;
+	END_IF;
+
+	// ---- NW4: part type -------------------------------------------
+	#xCmdProduce := #xProduceLids;
+
+	// ---- NW5: start / stop commands to the station ----------------
+	#xCmdStart := #xRun AND NOT #xFault AND NOT #xIsBusy;
+	#xCmdStop := NOT #xRun;
+
+	// ---- NW6: reset pulse -----------------------------------------
+	#xCmdReset := #xResetEdge;
+
+	// ---- NW7: part counter (falling edge of Is Busy) --------------
+	#xCycleDone := #xBusyOld AND NOT #xIsBusy;
+	IF #xCycleDone THEN
+	    #iParts := #iParts + 1;
+	END_IF;
+	#xBusyOld := #xIsBusy;
+
+	// ---- NW8: ready / interlock -----------------------------------
+	#xReady := #xRun AND NOT #xFault AND NOT #xIsBusy AND NOT #xHasError AND NOT #xDoorOpened;
+
+	// ---- NW9: infeed belt only while the station is free ----------
+	#xInfeedBelt := #xRun AND NOT #xFault AND NOT #xIsBusy;
+
+	// ---- NW10: outfeed belt follows the line ----------------------
+	#xOutfeedBelt := #xRun AND NOT #xFault;
+
+END_FUNCTION_BLOCK

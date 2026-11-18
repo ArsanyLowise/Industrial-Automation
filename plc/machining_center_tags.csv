@@ -1,0 +1,11 @@
+Name;Data type;Address;Comment
+"Machining Center 1 (Start)";Bool;%Q11.2;scene tag 90 - start the cycle
+"Machining Center 1 (Stop)";Bool;%Q11.3;scene tag 91 - stop the cycle
+"Machining Center 1 (Reset)";Bool;%Q11.4;scene tag 92 - clear a fault
+"Machining Center 1 (Produce Lids)";Bool;%Q11.5;scene tag 93 - TRUE = lid, FALSE = base
+"CNC Infeed Conveyor";Bool;%Q11.6;scene tag 94 - belt into the entry bay
+"CNC Outfeed Conveyor";Bool;%Q11.7;scene tag 95 - belt out of the exit bay
+"Machining Center 1 (Is Busy)";Bool;%I6.7;scene tag 55 - robot or CNC working
+"Machining Center 1 (Has Error)";Bool;%I7.0;scene tag 56 - wrong item on the entry bay
+"Machining Center 1 (Opened)";Bool;%I7.1;scene tag 57 - safeguard door open
+"Machining Center 1 (Progress)";Int;%IW4;scene tag 2 - machining progress 0..100
