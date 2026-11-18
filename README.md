@@ -101,10 +101,3 @@ base scene is unchanged.
 
 The scene has 141 objects and 164 tags, with no duplicate tag names. It is a plain Factory I/O scene
 file, nothing is generated or patched when it loads.
-
-## Credits
-
-The base cell, meaning the sorting, the assembly, the matrix warehouse and its PLC structure, is the
-work of three Mechatronics Engineering students at Sana'a University: Fares Hilal Ahmed Haider, Luay
-Ahmed Yahya Zayed and Ayman Mrwan Mohammed Al-Reazqee. See `ATTRIBUTION.md`. The machining cell, its
-tags, its block and this documentation were added for this project.
