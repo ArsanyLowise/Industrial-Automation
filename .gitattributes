@@ -1,0 +1,3 @@
+# Keep the Factory I/O scene and the screenshots byte-for-byte.
+*.factoryio -text
+*.jpg binary
